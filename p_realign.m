@@ -1,10 +1,22 @@
-function o_matlabbatch = p_realign(i_files2realign, bk, i_folder)
+function o_matlabbatch = p_realign(i_files2realign, bk, i_folder, i_reslice)
 %
-%   o_matlabbatch = realign(i_folder, i_matlabbatch)
-%
-%   i_files2realign:      [string]  Files to realign
-%   bk:            [boolean] Do you want to backup your file before
+% FORMAT:   o_matlabbatch = p_realign(i_files2realign)
+% FORMAT:   o_matlabbatch = p_realign(i_files2realign, bk, i_folder)
+
+% INPUTS:
+%   i_files2realign:    [cell array]    files to realign; each cell
+%                                       contains files for a single run/session
+%   bk:                 [boolean]       backup your files with the original
+%                                       orientation
+%   i_folder            [string]        full path to the directory to save
+%                                       the original files prior to the 
+%                                       realignment
+% i_reslice             [boolean]       1 - reslice all images, 0 - reslice
+%                                       only the mean image; the resliced
+%                                       images are saved with the prefix
+%                                       'r'
 % 
+% OUTPUT:
 %   o_matlabbatch: [array]   SPM structure output  
 % 
 %   abore: 10 septembre 2015
@@ -25,7 +37,10 @@ function o_matlabbatch = p_realign(i_files2realign, bk, i_folder)
 %       - i_folder is used only when bk
 % 
 if nargin < 3
-    bk=false; 
+    bk = false;
+end
+if nargin < 4
+    i_reslice = 0;
 end
 
 o_matlabbatch = [];
@@ -38,14 +53,13 @@ if bk
     o_matlabbatch{end}.cfg_basicio.file_dir.file_ops.file_move.action.copyren.unique = false;
 end
 
-if size(i_files2realign,1)>1 % Multiple files
-    o_matlabbatch{end+1}.spm.spatial.realign.estwrite.data = {cellstr(i_files2realign)};
-else % One 4D file
-    o_matlabbatch{end+1}.spm.util.exp_frames.files = cellstr(i_files2realign);
-    o_matlabbatch{end}.spm.util.exp_frames.frames = Inf;
-    dependancy = length(o_matlabbatch); % dependancy for next module
-    o_matlabbatch{end+1}.spm.spatial.realign.estwrite.data{1}(1) = cfg_dep('Expand image frames: Expanded filename list.', substruct('.','val', '{}',{dependancy}, '.','val', '{}',{dependancy}, '.','val', '{}',{dependancy}), substruct('.','files'));
+o_matlabbatch{end+1} = [];
+for i_run = 1 : numel(i_files2realign)
+    o_matlabbatch{end}.spm.spatial.realign.estwrite.data(i_run) = {cellstr(i_files2realign{i_run})};    
 end
+
+% SPM default pparameters
+% -------------------------------------------------------------------------
 o_matlabbatch{end}.spm.spatial.realign.estwrite.eoptions.quality = 0.9;
 o_matlabbatch{end}.spm.spatial.realign.estwrite.eoptions.sep = 4;
 o_matlabbatch{end}.spm.spatial.realign.estwrite.eoptions.fwhm = 5;
@@ -53,16 +67,29 @@ o_matlabbatch{end}.spm.spatial.realign.estwrite.eoptions.rtm = 1;
 o_matlabbatch{end}.spm.spatial.realign.estwrite.eoptions.interp = 2;
 o_matlabbatch{end}.spm.spatial.realign.estwrite.eoptions.wrap = [0 0 0];
 o_matlabbatch{end}.spm.spatial.realign.estwrite.eoptions.weight = '';
+% -------------------------------------------------------------------------
 
-% Option which:
-% Only mean [0 1]
-% All images and mean [2 1]
-o_matlabbatch{end}.spm.spatial.realign.estwrite.roptions.which = [0 1];
+% reslice:
+%   [2 0] - all images
+% 	[0 1] - only mean
+%   [2 1] - all images and mean
+if i_reslice % reslice all images
+    o_matlabbatch{end}.spm.spatial.realign.estwrite.roptions.which = [2 1];
+else % reslice onlt the mean image
+    o_matlabbatch{end}.spm.spatial.realign.estwrite.roptions.which = [0 1];
+end
 
-% default spm 4 - GA=> 3
-o_matlabbatch{end}.spm.spatial.realign.estwrite.roptions.interp = 3; 
+% The  method  by  which  the  images  are  sampled  when  being  written  
+% in a different space. Nearest   Neighbour   is   fastest,   but  not  
+% recommended  for  image realignment.  Trilinear Interpolation  is  
+% probably  OK  for  PET,  but not so suitable for fMRI because higher 
+% degree interpolation  generally  gives  better  results. Although higher
+% degree methods provide better interpolation, but they are slower because
+% they use more neighbouring voxels.
+% SPM default value - 4
+o_matlabbatch{end}.spm.spatial.realign.estwrite.roptions.interp = 4; 
 
 o_matlabbatch{end}.spm.spatial.realign.estwrite.roptions.wrap = [0 0 0];
 o_matlabbatch{end}.spm.spatial.realign.estwrite.roptions.mask = 1;
-o_matlabbatch{end}.spm.spatial.realign.estwrite.roptions.prefix = 'r_';
+o_matlabbatch{end}.spm.spatial.realign.estwrite.roptions.prefix = 'r';
 

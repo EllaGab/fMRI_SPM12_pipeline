@@ -10,7 +10,7 @@ function o_matlabbatch = p_set_con(i_spm_file, i_con_matrix, ...
 %   i_matlabbatch: [struct]
 
 
-if nargin<5 i_matlabbatch={};end
+if nargin<5, i_matlabbatch=[];end
 
 o_matlabbatch = i_matlabbatch;
 
