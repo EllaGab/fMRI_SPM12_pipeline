@@ -9,7 +9,7 @@ function o_matlabbatch = p_convert_dcm2nii(i_folder, o_folder, o_filename, ...
 % FORMAT: o_matlabbatch = p_convert_dcm2nii(i_folder, o_folder, o_filename,...
 %                                           convert_to_4D, delete_3D)
 %
-% Inputs:
+% Input:
 %   i_folder        [string]  the path to the directory with dicom files;
 %                             if not exist return error
 %   o_folder        [string]  the path to the directory to save the 
@@ -19,8 +19,8 @@ function o_matlabbatch = p_convert_dcm2nii(i_folder, o_folder, o_filename, ...
 %                             extention will be added if not specified;
 %                             if not given or '' the default name 
 %                             will be used
-%   convert_to_4D:  [boolean] 1 - convert into 4D nifti
-%   delete_3D:      [boolean] 1 - delete 3D files (is useful following 4D
+%   convert_to_4D   [boolean] 1 - convert into 4D nifti
+%   delete_3D       [boolean] 1 - delete 3D files (is useful following 4D
 %                             conversion)
 %
 % Output:
@@ -52,10 +52,11 @@ function o_matlabbatch = p_convert_dcm2nii(i_folder, o_folder, o_filename, ...
        
     o_matlabbatch = [];
 
-    files = p_get_files(i_folder, 'dcm');
+    files = cellstr(p_get_files(i_folder, 'dcm'));    
+%     files = cellstr(p_get_files(i_folder, '', 'i'));
 
-    %     files to convert
-    o_matlabbatch{end+1}.spm.util.import.dicom.data = cellstr(files);
+    % files to convert
+    o_matlabbatch{end+1}.spm.util.import.dicom.data = files;
     o_matlabbatch{end}.spm.util.import.dicom.root = 'flat';
     o_matlabbatch{end}.spm.util.import.dicom.outdir = cellstr(o_folder);
     o_matlabbatch{end}.spm.util.import.dicom.protfilter = '.*';
@@ -71,7 +72,7 @@ function o_matlabbatch = p_convert_dcm2nii(i_folder, o_folder, o_filename, ...
     elseif ~strcmp(o_filename,'') 
         
         dependancy = length(o_matlabbatch);
-        dcmInfo = dicominfo(files(1,:));
+        dcmInfo = dicominfo(files{1});
         
         if strfind(lower(dcmInfo.ProtocolName),'mprage') % If anat
             dcmInfo.InstanceNumber = size(files,1);

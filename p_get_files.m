@@ -1,7 +1,9 @@
 function o_files = p_get_files(i_folder, i_ext, i_prefix)
 %
-%   o_files = get_files(i_folder, ext)
+% FORMAT:   o_files = get_files(i_folder, i_ext)
 %   
+% FORMAT:   o_files = get_files(i_folder, i_ext, i_prefix)
+%
 %   i_folder: [string] Folder to list
 %   i_ext:    [string] Extension file
 %   i_prefix: [string] Begining of the filename
@@ -21,9 +23,12 @@ if nargin < 3 i_prefix=''; end;
 [o_files] = spm_select('List', i_folder, ['^', i_prefix , '.*' , i_ext ,'$']);
 
 if isempty(o_files)
-    error('MyComponent:missingObject',...
+    warning('MyComponent:missingObject',...
     ['No files found in ', i_folder, ' folder']);
 else
-    o_files = strcat(i_folder, o_files);
+    if i_folder(end) == filesep
+        o_files = strcat({i_folder}, o_files);
+    else
+        o_files = strcat({i_folder}, {filesep}, o_files);
+    end
 end
-

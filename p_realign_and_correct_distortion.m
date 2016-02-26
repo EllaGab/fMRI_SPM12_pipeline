@@ -1,15 +1,18 @@
-function o_matlabbatch = p_realign_and_correct_distortion(i_file, i_mag, i_phase, i_TE, i_EES, i_slices)
+function o_matlabbatch = p_realign_and_correct_distortion(i_file, i_mag, i_phase, i_TE, i_EES, i_echoes)
 % 
-%   o_matlabbatch = correct_distortion(i_file, i_mag, i_phase)
+% FORMAT:   o_matlabbatch = p_realign_and_correct_distortion(i_file, i_mag, i_phase, i_TE, i_EES, i_echoes)
 % 
-%   i_file: [string]    files to correct
-%   i_mag:  [string]    magnitude
-%   i_phase:  [string]    phase
-%   i_TE:   [float float] short and long TE
-%   i_EES:      [float]     Effective Echo Spacing
-%   i_slices:      [float]     Effective Echo Spacing
+% INPUTS:
+%   i_file:        [string]         files to correct
+%   i_mag:          [string]        magnitude
+%   i_phase:        [string]        phase
+%   i_TE:           [float float]   short and long TE
+%   i_EES:          [float]         Effective Echo Spacing
+%   i_echoes:       [float]         the # of echoes to cover k-space, i.e.,
+%                                   base resolution
 % 
-%   o_matlabbatch: [array]   SPM structure output  
+% OUTPUT:
+%   o_matlabbatch:  [array]         SPM structure output  
 % 
 %   abore : 10 decembre 2015
 %       - Creation of p_realignement_and_correct_distortion
@@ -29,7 +32,7 @@ o_matlabbatch{end}.spm.tools.fieldmap.presubphasemag.subj.magnitude = cellstr(i_
 o_matlabbatch{end}.spm.tools.fieldmap.presubphasemag.subj.defaults.defaultsval.et = i_TE;   %[short TE long TE]
 o_matlabbatch{end}.spm.tools.fieldmap.presubphasemag.subj.defaults.defaultsval.maskbrain = 1;
 o_matlabbatch{end}.spm.tools.fieldmap.presubphasemag.subj.defaults.defaultsval.blipdir = -1; % AP:-1  , PA:1
-o_matlabbatch{end}.spm.tools.fieldmap.presubphasemag.subj.defaults.defaultsval.tert = i_slices * i_EES;
+o_matlabbatch{end}.spm.tools.fieldmap.presubphasemag.subj.defaults.defaultsval.tert = i_echoes * i_EES;
 o_matlabbatch{end}.spm.tools.fieldmap.presubphasemag.subj.defaults.defaultsval.epifm = 0;
 o_matlabbatch{end}.spm.tools.fieldmap.presubphasemag.subj.defaults.defaultsval.ajm = 0;
 o_matlabbatch{end}.spm.tools.fieldmap.presubphasemag.subj.defaults.defaultsval.uflags.method = 'Mark3D';
@@ -49,8 +52,6 @@ o_matlabbatch{end}.spm.tools.fieldmap.presubphasemag.subj.sessname = 'session';
 o_matlabbatch{end}.spm.tools.fieldmap.presubphasemag.subj.writeunwarped = 0; % write unwarped image
 o_matlabbatch{end}.spm.tools.fieldmap.presubphasemag.subj.anat = []; % Structural T1 anat
 o_matlabbatch{end}.spm.tools.fieldmap.presubphasemag.subj.matchanat = 0; % Match T1 with EPI
-
-
 
 dependancy = length(o_matlabbatch);
 
@@ -80,7 +81,7 @@ o_matlabbatch{end}.spm.spatial.realignunwarp.uweoptions.expround = 'Average';
 % Option which:
 % Only mean [0 1]
 % All images and mean [2 1]
-o_matlabbatch{end}.spm.spatial.realignunwarp.uwroptions.uwwhich = [0 1];
+o_matlabbatch{end}.spm.spatial.realignunwarp.uwroptions.uwwhich = [2 1];
 
 % default spm 4 - GA=> 3
 o_matlabbatch{end}.spm.spatial.realignunwarp.uwroptions.rinterp = 3;
