@@ -69,36 +69,36 @@ end
 % tmp = 1;
 % 
 % estimation of the design
-% o_matlabbatch = [];
-% for nSub =1%:length(data.subjects)
-%     o_folder = fullfile('analyse', data.subjects{nSub},data.ffx{1},filesep);
-%     spm_file = p_get_files(o_folder,'.mat');
-%     o_matlabbatch = p_estimate_design(spm_file,o_matlabbatch);
-% end
-% spm_jobman('run',o_matlabbatch);
-% % 
-% tmp = 1;
+o_matlabbatch = [];
+for nSub =1%:length(data.subjects)
+    o_folder = fullfile('analyse', data.subjects{nSub},data.ffx{1},filesep);
+    spm_file = p_get_files(o_folder,'.mat');
+    o_matlabbatch = p_estimate_design(spm_file,o_matlabbatch);
+end
+spm_jobman('run',o_matlabbatch);
 % 
-% % Get all spm files
-% spm_files = [];
-% for nSub =1%:length(data.subjects)
-%     o_folder = fullfile('analyse', data.subjects{nSub},data.ffx{1},filesep);
-%     spm_files{end+1} = p_get_files(o_folder,'.mat');
-% end
+tmp = 1;
+
+% Get all spm files
+spm_files = [];
+for nSub =1%:length(data.subjects)
+    o_folder = fullfile('analyse', data.subjects{nSub},data.ffx{1},filesep);
+    spm_files{end+1} = p_get_files(o_folder,'.mat');
+end
+
+tmp = 1;
 % 
-% tmp = 1;
-% % 
-% % create list of contrasts
-% [o_con_matrix, o_con_name, o_cond_name, answer] = p_create_list_contrasts(spm_files);
-% 
-% o_matlabbatch = [];
-% if answer % Check if contrasts were correct
-%     for nSub =1:length(data.subjects)
-%         o_folder = fullfile('analyse', data.subjects{nSub},data.ffx{1},filesep);
-%         spm_file = p_get_files(o_folder,'.mat');
-%         o_matlabbatch = p_set_con(spm_file, o_con_matrix, o_con_name, o_cond_name, o_matlabbatch);
-%     end
-%     spm_jobman('run',o_matlabbatch);
-% end
+% create list of contrasts
+[o_con_matrix, o_con_name, o_cond_name, answer] = p_create_list_contrasts(spm_files);
+
+o_matlabbatch = [];
+if answer % Check if contrasts were correct
+    for nSub =1:length(data.subjects)
+        o_folder = fullfile('analyse', data.subjects{nSub},data.ffx{1},filesep);
+        spm_file = p_get_files(o_folder,'.mat');
+        o_matlabbatch = p_set_con(spm_file, o_con_matrix, o_con_name, o_cond_name, o_matlabbatch);
+    end
+    spm_jobman('run',o_matlabbatch);
+end
 
 

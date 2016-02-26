@@ -32,12 +32,14 @@ subdirs_path(end) = [];
 
 % remove path to directories that don't contain the files of the required 
 % type according to the pref & ext
-for i_subdir = 1: length(subdirs_path)
-    [files] = spm_select('List', subdirs_path{i_subdir}, ['^', pref , '.*' , ext ,'$']);
-    if isempty(files)
-        subdirs_path{i_subdir} = '';
+if ~isempty(pref) || ~isempty(ext)
+    for i_subdir = 1: length(subdirs_path)
+        [files] = spm_select('List', subdirs_path{i_subdir}, ['^', pref , '.*' , ext ,'$']);
+        if isempty(files)
+            subdirs_path{i_subdir} = '';
+        end
     end
+    subdirs_path(ismember(subdirs_path,{''})) = [];
 end
-subdirs_path(ismember(subdirs_path,{''})) = [];
 
 end
